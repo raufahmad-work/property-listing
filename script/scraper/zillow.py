@@ -1,12 +1,12 @@
 from apify_client import ApifyClient
-from script.config import APIFY_KEY, ZILLOW_ACTOR_ID
+from script.config import APIFY_API_KEY, ZILLOW_ACTOR_ID
 from script.constants import ZILLOW_BASE_INPUT
 
 
 class ZillowScraper:
     def __init__(self):
         self.actor_id = ZILLOW_ACTOR_ID
-        self.client = ApifyClient(APIFY_KEY)
+        self.client = ApifyClient(APIFY_API_KEY)
         self.base_input = ZILLOW_BASE_INPUT
 
     def get_borough_listings(self, borough, search_type):
