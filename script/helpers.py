@@ -76,16 +76,20 @@ def filter_new_listings(listings):
     if not urls:
         return listings
 
-    existing_urls = set(
+    existing = (
         SentListing
         .select(SentListing.url)
         .where(SentListing.url.in_(urls))
         .dicts()
         .execute()
     )
-    existing_urls = {item["url"] for item in existing_urls}
 
+    # Step 2: Convert dicts -> plain set of URLs
+    existing_urls = {item["url"] for item in existing}
+
+    # Step 3: Filter listings
     new_listings = [listing for listing in listings if listing.get("URL") not in existing_urls]
+
     return new_listings
 
 
