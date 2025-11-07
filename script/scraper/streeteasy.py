@@ -1,15 +1,13 @@
 from apify_client import ApifyClient
 from script.config import APIFY_KEY, STREETEASY_ACTOR_ID
+from script.constants import STREET_BASE_INPUT
 
 
 class StreetEasyScraper:
     def __init__(self):
         self.actor_id = STREETEASY_ACTOR_ID
         self.client = ApifyClient(APIFY_KEY)
-        self.base_input = {
-            "limit": 5000,
-            "query": ["borough"],
-        }
+        self.base_input = STREET_BASE_INPUT
 
     def get_borough_listings(self, borough, search_type):
         location = [borough]
