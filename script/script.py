@@ -3,6 +3,7 @@ import glob
 from collections import defaultdict
 from datetime import datetime
 
+from .config import TO_EMAIL
 from .scraper.streeteasy import StreetEasyScraper
 from .scraper.zillow import ZillowScraper
 from .helpers import create_file, send_email, filter_new_listings, create_records_in_db
@@ -74,7 +75,7 @@ create_file(zillow_data, f"zillow_{zillow_timestamp}")
 
 file_names = [f"streeteasy_{streeteasy_timestamp}", f"zillow_{zillow_timestamp}"]
 file_paths = [os.path.join(PARENT_DIR, f"{file_names[0]}.xlsx"), os.path.join(PARENT_DIR, f"{file_names[1]}.xlsx")]
-send_email(file_paths, file_names, "dev.raufahmad@gmail.com")
+send_email(file_paths, file_names, TO_EMAIL)
 
 
 create_records_in_db(streeteasy_data)
