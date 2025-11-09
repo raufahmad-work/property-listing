@@ -4,9 +4,10 @@ from collections import defaultdict
 from datetime import datetime
 
 from .config import TO_EMAIL
+from .helpers import create_file, send_email, filter_new_listings_from_db, create_records_in_db
+from .matching import filter_streeteasy_addresses_from_file, filter_zillow_addresses_from_file
 from .scraper.streeteasy import StreetEasyScraper
 from .scraper.zillow import ZillowScraper
-from .helpers import create_file, send_email, filter_new_listings, create_records_in_db
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(BASE_DIR)
@@ -16,7 +17,6 @@ streeteasy_scraper = StreetEasyScraper()
 zillow_scraper = ZillowScraper()
 boroughs = ["Brooklyn", "Bronx", "Manhattan", "Queens", "Staten Island"]
 search_types = ["rent", "sale"]
-search_type_mapping = {"rent": "FOR_RENT", "sale": "FOR_SALE"}
 
 for i, b in enumerate(boroughs, start=1):
     print(f"{i}. {b}")
@@ -38,15 +38,8 @@ streeteasy_timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
 for borough in selected_boroughs:
     for type in search_types:
         items = streeteasy_scraper.get_borough_listings(borough, type)
-        listings = [
-            {
-                "Address": item.get("title"),
-                "Type": search_type_mapping.get(type),
-                "URL": item.get("url"),
-                "Date Listed": item.get("created_at"),
-            } for item in items
-        ]
-        listings = filter_new_listings(listings)
+        listings = filter_streeteasy_addresses_from_file(items, type)
+        listings = filter_new_listings_from_db(listings)
         streeteasy_data[borough].extend(listings)
 
 
@@ -59,15 +52,8 @@ zillow_timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
 for borough in selected_boroughs:
     for type in search_types:
         items = zillow_scraper.get_borough_listings(borough, type)
-        listings = [
-            {
-                "Address": item.get("abbreviatedAddress"),
-                "Type": item.get("homeStatus"),
-                "URL": item.get("url"),
-                "Date Listed": item.get("datePostedString"),
-            } for item in items
-        ]
-        listings = filter_new_listings(listings)
+        listings = filter_zillow_addresses_from_file(items)
+        listings = filter_new_listings_from_db(listings)
         zillow_data[borough].extend(listings)
 
 create_file(zillow_data, f"zillow_{zillow_timestamp}")

@@ -67,7 +67,7 @@ def send_email(file_paths, file_names, to_email):
     print("✅ Email sent successfully!")
 
 
-def filter_new_listings(listings):
+def filter_new_listings_from_db(listings):
     """
     Filters out listings already stored in the database (bulk check).
     """
