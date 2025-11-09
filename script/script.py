@@ -38,8 +38,11 @@ streeteasy_timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
 for borough in selected_boroughs:
     for type in search_types:
         items = streeteasy_scraper.get_borough_listings(borough, type)
+        print(f"----------------------- Started Filtering Data ----------------------- {datetime.now()}")
         listings = filter_streeteasy_addresses_from_file(items, type)
+        print(f"----------------------- Started Filtering Data (DB) ----------------------- {datetime.now()}")
         listings = filter_new_listings_from_db(listings)
+        print(f"----------------------- Completed Filtering Data ----------------------- {datetime.now()}")
         streeteasy_data[borough].extend(listings)
 
 
@@ -52,8 +55,11 @@ zillow_timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
 for borough in selected_boroughs:
     for type in search_types:
         items = zillow_scraper.get_borough_listings(borough, type)
+        print(f"----------------------- Started Filtering Data (file) ----------------------- {datetime.now()}")
         listings = filter_zillow_addresses_from_file(items)
+        print(f"----------------------- Started Filtering Data (DB) ----------------------- {datetime.now()}")
         listings = filter_new_listings_from_db(listings)
+        print(f"----------------------- Completed Filtering Data ----------------------- {datetime.now()}")
         zillow_data[borough].extend(listings)
 
 create_file(zillow_data, f"zillow_{zillow_timestamp}")
