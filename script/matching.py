@@ -117,8 +117,11 @@ def filter_streeteasy_addresses_from_file(items, type):
     file_addresses = get_combined_addresses()
     filtered = []
     email_data = []
+    file_found = 0
+    total_active = 0
     for item in items:
         if item.get("status", -100) == 1:
+            total_active += 1
             street = item.get("addr_street", "") or ""
             borough = item.get("addr_city", "") or ""
             state = item.get("addr_state", "") or ""
@@ -129,11 +132,9 @@ def filter_streeteasy_addresses_from_file(items, type):
             else:
                 combined_address = f"{street}, {borough}, {state}, {zip_code}"
 
-            print("Scraped Combined Address (raw): ", combined_address)
             canonical = canonicalize_combined_address(combined_address)
-            print("Scraped Combined Address (canonical): ", canonical)
             if canonical in file_addresses:
-                print("---------------------- Found ----------------------")
+                file_found += 1
                 email_data.append({
                     "Address": canonical,
                     "Type": search_type_mapping.get(type),
@@ -142,6 +143,7 @@ def filter_streeteasy_addresses_from_file(items, type):
                 })
                 filtered.append(item)
 
+    print(f"{file_found} addresses found out of {total_active}")
     return email_data
 
 
@@ -149,9 +151,12 @@ def filter_zillow_addresses_from_file(items):
     file_addresses = get_combined_addresses()
     filtered = []
     email_data = []
+    file_found = 0
+    total_active = 0
     for item in items:
         home_status = (item.get("homeStatus") or "").upper()
         if home_status in list(search_type_mapping.values()):
+            total_active += 1
             address = item.get("address", {}) or {}
             street = address.get("streetAddress", "") or ""
             borough = address.get("city", "") or ""
@@ -162,11 +167,9 @@ def filter_zillow_addresses_from_file(items):
             else:
                 combined_address = f"{street}, {borough}, {state}, {zip_code}"
 
-            print("Scraped Combined Address (raw): ", combined_address)
             canonical = canonicalize_combined_address(combined_address)
-            print("Scraped Combined Address (canonical): ", canonical)
             if canonical in file_addresses:
-                print("---------------------- Found ----------------------")
+                file_found += 1
                 email_data.append({
                     "Address": canonical,
                     "Type": item.get("homeStatus"),
@@ -175,4 +178,5 @@ def filter_zillow_addresses_from_file(items):
                 })
                 filtered.append(item)
 
+    print(f"{file_found} addresses found out of {total_active}")
     return email_data
