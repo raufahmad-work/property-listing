@@ -116,6 +116,7 @@ def get_combined_addresses(file_path="script/addresses.xlsx"):
 def filter_streeteasy_addresses_from_file(items, type):
     file_addresses = get_combined_addresses()
     filtered = []
+    seen_urls = set()
     email_data = []
     file_found = 0
     total_active = 0
@@ -126,6 +127,13 @@ def filter_streeteasy_addresses_from_file(items, type):
             borough = item.get("addr_city", "") or ""
             state = item.get("addr_state", "") or ""
             zip_code = item.get("addr_zip") or ""
+            url = item.get("url")
+
+            # Skip if URL already processed
+            if not url or url in seen_urls:
+                continue
+            seen_urls.add(url)
+
             # Build the same combined format you used before, then canonicalize
             if borough.upper() == "MANHATTAN":
                 combined_address = f"{street}, NEW YORK, {state}, {zip_code}"
@@ -138,7 +146,7 @@ def filter_streeteasy_addresses_from_file(items, type):
                 email_data.append({
                     "Address": canonical,
                     "Type": search_type_mapping.get(type),
-                    "URL": item.get("url"),
+                    "URL": url,
                     "Date Listed": item.get("created_at"),
                 })
                 filtered.append(item)
@@ -150,6 +158,7 @@ def filter_streeteasy_addresses_from_file(items, type):
 def filter_zillow_addresses_from_file(items):
     file_addresses = get_combined_addresses()
     filtered = []
+    seen_urls = set()
     email_data = []
     file_found = 0
     total_active = 0
@@ -162,6 +171,12 @@ def filter_zillow_addresses_from_file(items):
             borough = address.get("city", "") or ""
             state = address.get("state", "") or ""
             zip_code = address.get("zipcode") or ""
+            url = item.get("url")
+
+            if not url or url in seen_urls:
+                continue
+            seen_urls.add(url)
+
             if borough.upper() == "MANHATTAN":
                 combined_address = f"{street}, NEW YORK, {state}, {zip_code}"
             else:
@@ -173,7 +188,7 @@ def filter_zillow_addresses_from_file(items):
                 email_data.append({
                     "Address": canonical,
                     "Type": item.get("homeStatus"),
-                    "URL": item.get("url"),
+                    "URL": url,
                     "Date Listed": item.get("datePostedString"),
                 })
                 filtered.append(item)
